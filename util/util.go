@@ -273,7 +273,7 @@ func DeleteTaskFromCSV(taskFilename, taskId string) error {
 		}
 	}
 
-	// If taskId was not found, print "hello"
+	// taskId was not found
 	if !taskFound {
 		fmt.Println("Task already Deleted")
 		return nil
