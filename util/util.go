@@ -236,3 +236,61 @@ func MarksTaskAsComplete(taskFilename, taskId string) error {
 	fmt.Println("Task Completed: ", rows[taskIdInt][1])
 	return nil
 }
+
+func DeleteTaskFromCSV(taskFilename, taskId string) error {
+	taskIdInt, err := strconv.ParseInt(taskId, 10, 64)
+	if err != nil {
+		return fmt.Errorf("parsing taskId [%s]: %s\n", taskId, err)
+	}
+
+	// Load the file
+	fileConfig := openModes["readWrite"]
+	file, err := loadFile(taskFilename, fileConfig.OpenFlag, fileConfig.Permission)
+	if err != nil {
+		return fmt.Errorf("loading file [%s]: %s\n", taskFilename, err)
+	}
+	defer closeFile(file)
+
+	// Read the content of the file
+	reader := csv.NewReader(file)
+	rows, err := reader.ReadAll()
+	if err != nil {
+		return fmt.Errorf("reading file [%s]: %s\n", taskFilename, err)
+	}
+
+	// Flag to check if taskId is found
+	taskFound := false
+
+	// Check for the task and delete it
+	if len(rows) != 0 {
+		for i, row := range rows {
+			if row[0] != "ID" && row[0] == taskId {
+				// Remove task row from slice
+				rows = append(rows[:i], rows[i+1:]...)
+				taskFound = true
+				break
+			}
+		}
+	}
+
+	// If taskId was not found, print "hello"
+	if !taskFound {
+		fmt.Println("Task already Deleted")
+		return nil
+	}
+
+	// Empty the file
+	file.Truncate(0)
+	file.Seek(0, 0)
+
+	// Write the updated rows back to the file
+	writer := csv.NewWriter(file)
+	err = writer.WriteAll(rows)
+	if err != nil {
+		return fmt.Errorf("writing to file [%s]: %s\n", taskFilename, err)
+	}
+	writer.Flush()
+
+	fmt.Println("Task Deleted: ", rows[taskIdInt][1])
+	return nil
+}

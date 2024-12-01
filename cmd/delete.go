@@ -4,20 +4,20 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/thakurnishu/golang-todo-list-cli/util"
 )
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "delete task with provide taskId",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long:  `delete task with provide taskId`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("delete called")
+		err := util.DeleteTaskFromCSV(taskFilename, args[0])
+		if err != nil {
+			fmt.Println("Error Deleting Task: ", err)
+		}
 	},
 }
 
